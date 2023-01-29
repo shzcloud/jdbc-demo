@@ -1,0 +1,34 @@
+server:
+  port: 1100
+  connection-timeout: 30000ms
+  servlet:
+    context-path: /
+    session:
+      timeout: 1800s
+  tomcat:
+    uri-encoding: UTF-8
+    max-connections: 2000
+    accept-count: 100
+    max-threads: 1000
+    min-spare-threads: 30
+    max-http-header-size: 8192
+    max-http-post-size: -1
+
+spring:
+  application:
+    name: admin
+  profiles:
+    active: dev
+  #  main:
+  #    # 允许bean重复定义并覆盖
+  #    allow-bean-definition-overriding: true
+  #    # 允许循环依赖
+  #    allow-circular-references: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 30MB
+
+log:
+  path: /home/logs/xxx/${spring.application.name}
