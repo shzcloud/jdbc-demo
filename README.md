@@ -33,6 +33,19 @@ public interface SysMenuRepository {
             "ORDER BY data"
     )
     List<ILTag<String>> countByLevel();
+
+    /**
+     * 流式查询
+     */
+    @Query(value = "SELECT id,parent_id,level,tag,app_name,location,name " +
+            "FROM sys_menu " +
+            "#{WHERE app_name = :appName} " +
+            "#{AND location IN :location} " +
+            "#{AND level BETWEEN :level.min AND :level.max} " +
+            "#{AND tag LIKE CONCAT(:tag, '%')}",
+            fetchSize = 3000
+    )
+    ActionRunner<SysMenu> cursorQuery(String appName, Set<String> location, Range<Integer> level, String tag);
 }
 ```
 
@@ -40,6 +53,7 @@ public interface SysMenuRepository {
 2. 使用:拼接参数名引用参数
 3. 在不使用sql的情况下参数名即为实体类域名
 4. 支持泛型结果（返回单个结果:普通类型、Map、数组，数组用Object[]顺序即为查询的列顺序，返回多个结果:统一用List接收）
+5. 流式查询接口返回类型为hz.core.function.ActionRunner或者shz.orm.param.OrmMapActionRunner,后面类型直接消费Map数据（还未映射到实体类）
 
 
 
@@ -76,6 +90,17 @@ public class SysMenuRepositoryTest {
     public void countByLevel() {
         List<ILTag<String>> list = repository.countByLevel();
         list.forEach(System.out::println);
+    }
+
+    @Test
+    void cursorQuery() {
+        //查询数据很大时可以采用流式查询
+        ActionRunner<SysMenu> runner = repository.cursorQuery(null, null, new Range<>(1, 2), "2.");
+
+        //真正开始执行查询
+        runner.accept(sysMenu -> {
+            //to do something
+        });
     }
 }
 ```

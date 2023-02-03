@@ -16,9 +16,11 @@ import shz.core.msg.ClientFailureMsg;
 import shz.core.msg.ServerFailureMsg;
 import shz.jdbc.SimpleService;
 import shz.orm.annotation.Transactional;
+import shz.orm.enums.Condition;
 import shz.spring.cache.DelLocalCache;
 import shz.spring.cache.GetLocalCache;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
@@ -31,9 +33,7 @@ class SysMenuServiceImpl extends SimpleService<SysMenu> implements SysMenuServic
     @Lock(LocalLockKey.MENU)
     @DelLocalCache(LocalCacheKey.ALL_MENU)
     public int add(@LockKey("parentId") SysMenu entity) {
-        SysMenu lbt = jdbcService.initTreeForInsert(entity, tree -> ClientFailureMsg.requireNon(checkUniqueForInsert(tree, "parentId", "name", "path"), "菜单名称和路径已经存在"), "菜单");
-        if (entity.getSort() == null && lbt != null) entity.setSort(lbt.getSort() + 1);
-        return insert(entity);
+        return jdbcService.insertTree(entity, tree -> ClientFailureMsg.requireNon(checkUniqueForInsert(tree, "parentId", "name", "path"), "菜单名称和路径已经存在"), "菜单");
     }
 
     @Lock(LocalLockKey.MENU)
@@ -44,18 +44,16 @@ class SysMenuServiceImpl extends SimpleService<SysMenu> implements SysMenuServic
     }
 
     @Transactional
-    @DelLocalCache(value = LocalCacheKey.ALL_MENU, keys = {LocalCacheKey.ALL_ROLE})
-    public int[] delete(List<?> ids) {
-        List<SysMenu> entities = selectByIds(new HashSet<>(ids));
-        if (entities.isEmpty()) return ArrayConstant.EMPTY_INT_ARRAY;
-        List<Long> realIds = ToList.explicitCollect(entities.stream().map(SysMenu::getId), entities.size());
-
-        int[] rows = batchDeleteById(realIds);
-        ServerFailureMsg.requireNon(batchFail(rows), "删除菜单失败,id:%s", realIds);
-
+    @DelLocalCache(value = LocalCacheKey.ALL_MENU)
+    public int delete(Collection<?> ids) {
         //删除角色菜单关系
-        jdbcService.deleteByColumn(SysRoleMenu.class, "menuId", realIds);
-        return rows;
+        jdbcService.deleteByColumn(SysRoleMenu.class, "menuId", ids, Condition.IN);
+        return super.delete(ids);
+    }
+
+    @GetLocalCache(LocalCacheKey.ALL_MENU)
+    public List<SysMenu> list() {
+        return selectList(null);
     }
 
     @Override
@@ -63,10 +61,5 @@ class SysMenuServiceImpl extends SimpleService<SysMenu> implements SysMenuServic
         SysMenu entity = selectById(id);
         ClientFailureMsg.requireNonNull(entity, "菜单不存在");
         return FieldSetter.copy(entity, new SysMenuDetailVo());
-    }
-
-    @GetLocalCache(LocalCacheKey.ALL_MENU)
-    public List<SysMenu> list() {
-        return selectList(null);
     }
 }

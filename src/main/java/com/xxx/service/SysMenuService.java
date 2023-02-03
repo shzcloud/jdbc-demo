@@ -11,7 +11,7 @@ import java.util.List;
  * @description 系统菜单服务接口
  */
 public interface SysMenuService extends IService<SysMenu> {
-    SysMenuDetailVo detail(Long id);
-
     List<SysMenu> list();
+
+    SysMenuDetailVo detail(Long id);
 }

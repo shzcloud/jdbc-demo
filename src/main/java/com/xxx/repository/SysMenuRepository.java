@@ -2,6 +2,7 @@ package com.xxx.repository;
 
 import com.xxx.entity.SysMenu;
 import com.xxx.vo.menu.QuerySysMenuVo;
+import shz.core.function.ActionRunner;
 import shz.core.model.Range;
 import shz.core.tag.ixx.ILTag;
 import shz.orm.annotation.Fields;
@@ -43,4 +44,17 @@ public interface SysMenuRepository {
             "ORDER BY data"
     )
     List<ILTag<String>> countByLevel();
+
+    /**
+     * 流式查询
+     */
+    @Query(value = "SELECT id,parent_id,level,tag,app_name,location,name " +
+            "FROM sys_menu " +
+            "#{WHERE app_name = :appName} " +
+            "#{AND location IN :location} " +
+            "#{AND level BETWEEN :level.min AND :level.max} " +
+            "#{AND tag LIKE CONCAT(:tag, '%')}",
+            fetchSize = 3000
+    )
+    ActionRunner<SysMenu> cursorQuery(String appName, Set<String> location, Range<Integer> level, String tag);
 }

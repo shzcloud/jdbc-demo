@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
@@ -38,19 +37,19 @@ public class SysMenuServiceTest {
 
     @Test
     public void delete() {
-        int[] rows = service.delete(Arrays.asList(100L));
-        assertArrayEquals(new int[]{1}, rows);
-    }
-
-    @Test
-    public void detail() {
-        SysMenuDetailVo detail = service.detail(100L);
-        System.out.println(detail);
+        int row = service.delete(Arrays.asList(100L));
+        assertEquals(1, row);
     }
 
     @Test
     public void list() {
         List<SysMenu> list = service.list();
         list.forEach(System.out::println);
+    }
+
+    @Test
+    public void detail() {
+        SysMenuDetailVo detail = service.detail(100L);
+        System.out.println(detail);
     }
 }

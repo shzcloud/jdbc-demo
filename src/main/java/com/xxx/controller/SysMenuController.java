@@ -75,7 +75,7 @@ public class SysMenuController {
 
         //返回树形结构
         List<SysMenu> result = TreeEntity.group(sysMenus);
-        TreeEntity.sort(result, Comparator.comparing(SysMenu::getSort));
+        TreeEntity.sort(result);
         return Response.ok(result);
     }
 }

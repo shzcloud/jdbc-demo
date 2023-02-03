@@ -5,6 +5,7 @@ import com.xxx.vo.menu.QuerySysMenuVo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import shz.core.function.ActionRunner;
 import shz.core.model.Range;
 import shz.core.tag.ixx.ILTag;
 
@@ -40,5 +41,16 @@ public class SysMenuRepositoryTest {
     public void countByLevel() {
         List<ILTag<String>> list = repository.countByLevel();
         list.forEach(System.out::println);
+    }
+
+    @Test
+    void cursorQuery() {
+        //查询数据很大时可以采用流式查询
+        ActionRunner<SysMenu> runner = repository.cursorQuery(null, null, new Range<>(1, 2), "2.");
+
+        //真正开始执行查询
+        runner.accept(sysMenu -> {
+            //to do something
+        });
     }
 }
