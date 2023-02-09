@@ -18,7 +18,7 @@ import java.util.List;
  * 系统菜单
  */
 @RestController
-@RequestMapping("/system/v1/menu")
+@RequestMapping("/v1/system/menu")
 public class SysMenuController {
     @Autowired
     SysMenuService sysMenuService;
