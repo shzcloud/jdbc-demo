@@ -8,12 +8,9 @@ import com.xxx.service.SysMenuService;
 import com.xxx.vo.menu.SysMenuDetailVo;
 import org.springframework.stereotype.Service;
 import shz.core.FieldSetter;
-import shz.core.ToList;
-import shz.core.constant.ArrayConstant;
 import shz.core.lock.Lock;
 import shz.core.lock.LockKey;
 import shz.core.msg.ClientFailureMsg;
-import shz.core.msg.ServerFailureMsg;
 import shz.jdbc.SimpleService;
 import shz.orm.annotation.Transactional;
 import shz.orm.enums.Condition;
@@ -21,7 +18,6 @@ import shz.spring.cache.DelLocalCache;
 import shz.spring.cache.GetLocalCache;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 /**
