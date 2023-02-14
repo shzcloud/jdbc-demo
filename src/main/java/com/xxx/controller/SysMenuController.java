@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import shz.core.FieldSetter;
 import shz.core.model.Response;
-import shz.orm.entity.TreeEntity;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -70,11 +69,8 @@ public class SysMenuController {
      */
     @GetMapping("list")
     public Response<List<SysMenu>> list() {
-        List<SysMenu> sysMenus = sysMenuService.list();
-
         //返回树形结构
-        List<SysMenu> result = TreeEntity.group(sysMenus);
-        TreeEntity.sort(result);
+        List<SysMenu> result = sysMenuService.list();
         return Response.ok(result);
     }
 }

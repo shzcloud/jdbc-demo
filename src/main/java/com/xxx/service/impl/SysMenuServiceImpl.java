@@ -1,21 +1,21 @@
 package com.xxx.service.impl;
 
-import com.xxx.constant.LocalCacheKey;
 import com.xxx.constant.LocalLockKey;
 import com.xxx.entity.SysMenu;
 import com.xxx.entity.SysRoleMenu;
 import com.xxx.service.SysMenuService;
 import com.xxx.vo.menu.SysMenuDetailVo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import shz.core.FieldSetter;
 import shz.core.lock.Lock;
 import shz.core.lock.LockKey;
 import shz.core.msg.ClientFailureMsg;
+import shz.core.msg.ServerFailureMsg;
 import shz.jdbc.SimpleService;
 import shz.orm.annotation.Transactional;
+import shz.orm.entity.TreeEntity;
 import shz.orm.enums.Condition;
-import shz.spring.cache.DelLocalCache;
-import shz.spring.cache.GetLocalCache;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,30 +26,34 @@ import java.util.List;
  */
 @Service
 class SysMenuServiceImpl extends SimpleService<SysMenu> implements SysMenuService {
+    @Value("${spring.application.name:DEFAULT}")
+    String appName;
+
     @Lock(LocalLockKey.MENU)
-    @DelLocalCache(LocalCacheKey.ALL_MENU)
     public int add(@LockKey("parentId") SysMenu entity) {
+        entity.setAppName(appName);
         return jdbcService.insertTree(entity, tree -> ClientFailureMsg.requireNon(checkUniqueForInsert(tree, "parentId", "name", "path"), "菜单名称和路径已经存在"), "菜单");
     }
 
     @Lock(LocalLockKey.MENU)
-    @DelLocalCache(LocalCacheKey.ALL_MENU)
     public int update(@LockKey("parentId") SysMenu entity) {
-        jdbcService.updateTree(entity, tree -> ClientFailureMsg.requireNon(checkUniqueForUpdate(tree, "parentId", "name", "path"), "菜单名称和路径已经存在"), "菜单");
-        return 1;
+        entity.setAppName(null);
+        return jdbcService.updateTree(entity, tree -> ClientFailureMsg.requireNon(checkUniqueForUpdate(tree, "parentId", "name", "path"), "菜单名称和路径已经存在"), "菜单");
     }
 
     @Transactional
-    @DelLocalCache(value = LocalCacheKey.ALL_MENU)
     public int delete(Collection<?> ids) {
-        //删除角色菜单关系
+        checkId(ids);
+        checkBoundData(SysRoleMenu.class, "menuId", ids, "菜单id%s已绑定角色");
         jdbcService.deleteByColumn(SysRoleMenu.class, "menuId", ids, Condition.IN);
-        return super.delete(ids);
+        int row = super.delete(ids);
+        ServerFailureMsg.requireNon(row != ids.size(), "删除菜单失败");
+        return row;
     }
 
-    @GetLocalCache(LocalCacheKey.ALL_MENU)
+    @Override
     public List<SysMenu> list() {
-        return selectList(null);
+        return TreeEntity.group(selectListByColumn("appName", appName));
     }
 
     @Override

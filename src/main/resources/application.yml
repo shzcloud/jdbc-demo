@@ -16,7 +16,7 @@ server:
 
 spring:
   application:
-    name: admin
+    name: DEFAULT
   profiles:
     active: dev
   #  main:

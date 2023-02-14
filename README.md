@@ -1,5 +1,22 @@
 # jdbc-demo
 
+##### 数据源配置
+
+1. 新建test-ds库
+2. 修改表sys_ds中主库的url为自己的主库地址
+3. 项目配置文件始终配置的是包含表sys_ds的库，项目启动将会自动查找配置的主库
+
+
+
+##### 多数据源的配置
+
+1. 在表sys_ds中新增数据源配置
+2. BaseService及SimpleService具有传入库名的构造方法，可以传入配置的库名
+3. @Repository注解的value值代表库名
+4. 默认会查找主库即名称为main的配置
+
+
+
 ##### Repository
 
 ```

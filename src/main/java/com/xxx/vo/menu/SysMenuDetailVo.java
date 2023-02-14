@@ -9,9 +9,9 @@ import lombok.ToString;
 @ToString
 public class SysMenuDetailVo {
     private Long id;
-    private String name;
     private Integer sort;
-    private String iconPath;
+    private String name;
+    private String icon;
     private String path;
     private Boolean expanded;
 }
